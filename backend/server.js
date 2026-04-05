@@ -534,5 +534,7 @@ app.get("/api/orders/user/:userId", async (req, res) => {
     } catch (err) { res.status(500).json({ error: "Signal Lost" }); }
 });
 
-app.listen(5000, () => console.log("🚀 Syndicate Hangar Online | Port 5000"));
-
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(5000, () => console.log("🚀 Syndicate Hangar Online | Port 5000"));
+}
+module.exports = app;
