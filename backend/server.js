@@ -382,7 +382,15 @@ app.get("/api/admin/hq-stats", adminGuard, async (req, res) => {
 app.get("/api/products", async (req, res) => {
     try {
         let query = { isArchived: false }; 
-        if (req.query.search) query.name = { $regex: req.query.search, $options: 'i' };
+        if (req.query.search) {
+            const keywords = req.query.search.split(/\s+/).filter(k => k.length > 0);
+            if (keywords.length > 0) {
+                query.$and = keywords.map(k => {
+                    const regex = { $regex: k, $options: 'i' };
+                    return { $or: [{ name: regex }, { tags: regex }, { description: regex }] };
+                });
+            }
+        }
         if (req.query.collection) query.collectionId = req.query.collection;
         if (req.query.category) query.categoryId = req.query.category;
         let sort = req.query.sort === 'price-low' ? { salePrice: 1 } : req.query.sort === 'price-high' ? { salePrice: -1 } : { dateDeployed: -1 };
